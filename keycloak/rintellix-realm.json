@@ -1,0 +1,76 @@
+{
+  "realm": "rintellix",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "ANALISTA",
+        "description": "Credit risk analyst — the only role authorised to execute the platform REST methods."
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "rintellix-frontend",
+      "name": "RIntellix Frontend / API client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:3000"
+      ],
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "analista",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "analista@rintellix.local",
+      "firstName": "Ana",
+      "lastName": "Lista",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "analista",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ANALISTA"
+      ]
+    },
+    {
+      "username": "viewer",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "viewer@rintellix.local",
+      "firstName": "View",
+      "lastName": "Only",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "viewer",
+          "temporary": false
+        }
+      ],
+      "realmRoles": []
+    }
+  ]
+}

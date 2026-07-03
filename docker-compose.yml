@@ -1,0 +1,32 @@
+services:
+  # -------------------------------------------------------------------
+  # Keycloak — authentication server (imports the RIntellix realm)
+  # -------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: rintellix-keycloak
+    command:
+      - start-dev
+      - --import-realm
+      - --http-port=8180
+    environment:
+      # Local-dev admin console credentials (NOT for production use).
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8180:8180"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8180 && echo -e 'GET /realms/rintellix HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+    networks:
+      - rintellix-net
+
+networks:
+  rintellix-net:
+    driver: bridge
