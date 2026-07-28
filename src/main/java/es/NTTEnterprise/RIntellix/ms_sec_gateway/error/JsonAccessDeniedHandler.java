@@ -17,6 +17,14 @@ import reactor.core.publisher.Mono;
  * Returns a JSON {@code 403 Forbidden} when an authenticated caller lacks the
  * required {@code ANALISTA} role.
  */
+/**
+ * Core component: JsonAccessDeniedHandler.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

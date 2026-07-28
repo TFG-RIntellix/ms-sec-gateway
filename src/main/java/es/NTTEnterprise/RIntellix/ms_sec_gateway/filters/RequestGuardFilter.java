@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
 import es.NTTEnterprise.RIntellix.ms_sec_gateway.config.GatewaySecurityProperties;
+import es.NTTEnterprise.RIntellix.ms_sec_gateway.config.Limits;
 import es.NTTEnterprise.RIntellix.ms_sec_gateway.error.GatewayErrorWriter;
 import es.NTTEnterprise.RIntellix.ms_sec_gateway.security.AttackDetector;
 import es.NTTEnterprise.RIntellix.ms_sec_gateway.utils.LogMessage;
@@ -23,6 +24,14 @@ import reactor.core.publisher.Mono;
  * Cheap, synchronous request-hardening checks performed before the body is read:
  * URL length, header count, path traversal, declared payload size, and NoSQL/XSS
  * scanning of the query string and path.
+ */
+/**
+ * Core component: RequestGuardFilter.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
  */
 @Slf4j
 @Component
@@ -40,7 +49,7 @@ public class RequestGuardFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
         final ServerHttpRequest request = exchange.getRequest();
-        final GatewaySecurityProperties.Limits limits = properties.getLimits();
+        final Limits limits = properties.getLimits();
 
         // 1. URL length
         final String uri = request.getURI().toString();
@@ -68,7 +77,8 @@ public class RequestGuardFilter implements GlobalFilter, Ordered {
             }
         }
 
-        // 4. Declared payload size (fast pre-check; the body filter enforces the actual size)
+        // 4. Declared payload size (fast pre-check; the body filter enforces the actual
+        // size)
         final long contentLength = request.getHeaders().getContentLength();
         if (contentLength > limits.getMaxBodyBytes()) {
             log.warn(LogMessage.FILTER_PAYLOAD_TOO_LARGE, request.getMethod(), request.getPath().value(),

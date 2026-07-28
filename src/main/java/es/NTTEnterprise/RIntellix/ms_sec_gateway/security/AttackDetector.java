@@ -25,6 +25,14 @@ import tools.jackson.databind.ObjectMapper;
  * All checks are read-only and allocation-light; each returns a human-readable
  * reason {@code String} when something is blocked, or {@code null} when clean.
  */
+/**
+ * Core component: AttackDetector.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Component
 @RequiredArgsConstructor
 public class AttackDetector {

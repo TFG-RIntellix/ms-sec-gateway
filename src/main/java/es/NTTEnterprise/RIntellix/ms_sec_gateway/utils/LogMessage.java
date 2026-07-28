@@ -7,7 +7,7 @@ package es.NTTEnterprise.RIntellix.ms_sec_gateway.utils;
  * Provides consistent, reusable log message templates so logging stays uniform
  * across the gateway's security filters and configuration.
  *
- * @author Lucia Fernandez Mancebo
+ * @author Lucía Fernández Mancebo
  */
 public final class LogMessage {
 

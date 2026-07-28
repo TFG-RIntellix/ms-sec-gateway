@@ -11,6 +11,14 @@ import lombok.RequiredArgsConstructor;
 /**
  * CORS policy for the gateway, restricted to the configured frontend origins.
  */
+/**
+ * Core component: CorsConfig.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Configuration
 @RequiredArgsConstructor
 public class CorsConfig {
@@ -19,7 +27,7 @@ public class CorsConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        final GatewaySecurityProperties.Cors cors = properties.getCors();
+        final Cors cors = properties.getCors();
 
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(cors.getAllowedOrigins());

@@ -27,6 +27,14 @@ import reactor.core.publisher.Mono;
  * filters so every rejection ({@code 400/401/403/413/429}) shares the same
  * shape and carries the {@code X-Request-ID} for cross-service correlation.
  */
+/**
+ * Core component: GatewayErrorWriter.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

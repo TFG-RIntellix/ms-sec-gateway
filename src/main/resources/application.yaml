@@ -54,6 +54,19 @@ gateway:
       allowed-origins:
         - http://localhost:4200
         - http://localhost:3000
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - Authorization
+        - Content-Type
+        - X-Request-ID
+      allow-credentials: true
+      max-age-seconds: 3600
     limits:
       max-body-bytes: 1048576
       max-url-length: 4096
@@ -65,6 +78,14 @@ gateway:
       enabled: true
       requests-per-minute: 120
       burst-capacity: 40
+    stripped-headers:
+      - X-User-Role
+      - X-User-Id
+      - X-User-Name
+      - X-Authenticated-User
+      - X-Roles
+      - X-Auth-Roles
+      - X-Forwarded-User
 
 logging:
   level:

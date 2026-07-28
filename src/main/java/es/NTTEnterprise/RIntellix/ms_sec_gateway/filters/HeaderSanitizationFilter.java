@@ -20,6 +20,14 @@ import reactor.core.publisher.Mono;
  * <p>
  * Runs first among the gateway's global filters.
  */
+/**
+ * Core component: HeaderSanitizationFilter.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

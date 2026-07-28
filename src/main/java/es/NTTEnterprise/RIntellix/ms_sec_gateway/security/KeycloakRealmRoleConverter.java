@@ -20,6 +20,14 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * role {@code X} becomes a {@code ROLE_X} authority so that
  * {@code hasRole("ANALISTA")} matches the Keycloak realm role {@code ANALISTA}.
  */
+/**
+ * Core component: KeycloakRealmRoleConverter.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 public class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
     private static final String REALM_ACCESS_CLAIM = "realm_access";

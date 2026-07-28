@@ -32,6 +32,14 @@ import reactor.core.publisher.Mono;
  * then authorises only the {@code ANALISTA} realm role to reach any routed REST
  * method. Health/info probes and CORS preflight are the only public endpoints.
  */
+/**
+ * Core component: SecurityConfig.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {

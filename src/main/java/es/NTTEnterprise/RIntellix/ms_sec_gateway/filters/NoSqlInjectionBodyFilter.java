@@ -31,6 +31,14 @@ import reactor.core.publisher.Mono;
  * Only bodies of write methods ({@code POST/PUT/PATCH}) with a JSON content type
  * are inspected; everything else passes straight through untouched.
  */
+/**
+ * Core component: NoSqlInjectionBodyFilter.
+ * Encapsulates the logic and responsibilities assigned to this element
+ * within the Hexagonal Architecture, ensuring separation of concerns.
+ *
+ * @author Lucía Fernández Mancebo
+ * @date 28/07/2026
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
