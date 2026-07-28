@@ -1,5 +1,7 @@
 package es.NTTEnterprise.RIntellix.ms_sec_gateway.filters;
 
+import java.security.Principal;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -44,7 +46,7 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
         }
 
         return exchange.getPrincipal()
-                .map(java.security.Principal::getName)
+                .map(Principal::getName)
                 .defaultIfEmpty(clientKey(exchange))
                 .flatMap(key -> {
                     final TokenBucket bucket = buckets.computeIfAbsent(key,

@@ -15,6 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  * the backing microservices.
  *
  * @author Lucía Fernández Mancebo
+ * @date 04/07/2026
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan

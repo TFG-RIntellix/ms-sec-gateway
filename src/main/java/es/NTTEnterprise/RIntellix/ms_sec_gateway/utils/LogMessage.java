@@ -7,12 +7,14 @@ package es.NTTEnterprise.RIntellix.ms_sec_gateway.utils;
  * Provides consistent, reusable log message templates so logging stays uniform
  * across the gateway's security filters and configuration.
  *
- * @author Lucía Fernández Mancebo
+ * @author Lucia Fernandez Mancebo
  */
 public final class LogMessage {
 
+    public static final String UTILITY_CLASS_NEVER_INSTANTIATE = "Never instantiate";
+
     private LogMessage() {
-        // Prevent instantiation
+        throw new UnsupportedOperationException(UTILITY_CLASS_NEVER_INSTANTIATE);
     }
 
     // ============================================================
@@ -34,4 +36,5 @@ public final class LogMessage {
     public static final String FILTER_URL_TOO_LONG = "Blocked overly long URL - length: {} (max {})";
     public static final String FILTER_TOO_MANY_HEADERS = "Blocked request with too many headers - count: {} (max {})";
     public static final String FILTER_RATE_LIMITED = "Rate limit exceeded - key: [{}]";
+    public static final String EXCEPTION_UNEXPECTED = "Unexpected exception occurred: {}";
 }

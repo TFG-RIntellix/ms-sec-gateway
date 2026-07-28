@@ -23,6 +23,10 @@ spring:
               uri: ${MS_CORE_DATA_URI:http://localhost:8081}
               predicates:
                 - Path=/api/requests/**
+            - id: core-data-reports
+              uri: ${MS_CORE_DATA_URI:http://localhost:8081}
+              predicates:
+                - Path=/api/reports/**
 
             # ---- ms-risk-engine (simulation draft) ----
             - id: risk-engine-simulations
@@ -31,7 +35,7 @@ spring:
                 - Path=/api/v1/simulations/**
 
 server:
-  port: ${GATEWAY_PORT:8080}
+  port: ${GATEWAY_PORT:8085}
 
 management:
   endpoints:

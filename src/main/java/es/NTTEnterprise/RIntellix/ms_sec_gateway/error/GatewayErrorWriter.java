@@ -11,6 +11,7 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
+import es.NTTEnterprise.RIntellix.ms_sec_gateway.utils.LogMessage;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -58,7 +59,7 @@ public class GatewayErrorWriter {
         try {
             bytes = objectMapper.writeValueAsBytes(body);
         } catch (final JacksonException ex) {
-            log.error("Failed to serialize gateway error response", ex);
+            log.error(LogMessage.EXCEPTION_UNEXPECTED, ex);
             return response.setComplete();
         }
 

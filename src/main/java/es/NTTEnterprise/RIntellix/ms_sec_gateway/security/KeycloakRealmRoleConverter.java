@@ -1,5 +1,7 @@
 package es.NTTEnterprise.RIntellix.ms_sec_gateway.security;
 
+import java.util.Objects;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,7 @@ public class KeycloakRealmRoleConverter implements Converter<Jwt, Collection<Gra
         }
 
         return roleCollection.stream()
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .map(Object::toString)
                 .map(role -> new SimpleGrantedAuthority(ROLE_PREFIX + role))
                 .collect(Collectors.toUnmodifiableList());

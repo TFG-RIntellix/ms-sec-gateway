@@ -1,5 +1,7 @@
 package es.NTTEnterprise.RIntellix.ms_sec_gateway.error;
 
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
@@ -25,7 +27,7 @@ public class JsonAccessDeniedHandler implements ServerAccessDeniedHandler {
     @Override
     public Mono<Void> handle(final ServerWebExchange exchange, final AccessDeniedException ex) {
         return exchange.getPrincipal()
-                .map(java.security.Principal::getName)
+                .map(Principal::getName)
                 .defaultIfEmpty("anonymous")
                 .flatMap(subject -> {
                     log.warn(LogMessage.AUTH_FORBIDDEN, subject,
