@@ -93,6 +93,12 @@ class AttackDetectorTest {
         assertThat(detector.scanKey(key)).isNull();
     }
 
+    @Test
+    void allowsEmptyOrNullKeys() {
+        assertThat(detector.scanKey("")).isNull();
+        assertThat(detector.scanKey(null)).isNull();
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"{\"$gt\": \"\"}", "<script>alert(1)</script>", "javascript:alert(1)"})
     void blocksMaliciousValues(final String value) {
@@ -103,5 +109,18 @@ class AttackDetectorTest {
     @ValueSource(strings = {"John Doe", "abc-123", "2026-01-01"})
     void allowsLegitimateValues(final String value) {
         assertThat(detector.scanValue(value)).isNull();
+    }
+
+    @Test
+    void allowsEmptyOrNullValues() {
+        assertThat(detector.scanValue("")).isNull();
+        assertThat(detector.scanValue(null)).isNull();
+    }
+
+    @Test
+    void walksNullJsonNodesGracefully() {
+        // null node in JSON array/object should be skipped gracefully
+        final String json = "{\"field1\": null, \"array\": [1, null, 3]}";
+        assertThat(detector.scanJsonBody(json.getBytes(StandardCharsets.UTF_8), 10)).isNull();
     }
 }

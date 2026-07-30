@@ -24,6 +24,21 @@ class KeycloakRealmRoleConverterTest {
     }
 
     @Test
+    void filtersOutNullRoles() {
+        final Jwt jwt = Jwt.withTokenValue("token")
+                .header("alg", "RS256")
+                .subject("analista-user")
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusSeconds(60))
+                .claim("realm_access", Map.of("roles", java.util.Arrays.asList("ANALISTA", null)))
+                .build();
+
+        assertThat(converter.convert(jwt))
+                .extracting(GrantedAuthority::getAuthority)
+                .containsExactly("ROLE_ANALISTA");
+    }
+
+    @Test
     void returnsEmptyWhenRealmAccessMissing() {
         final Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "none")
@@ -46,6 +61,11 @@ class KeycloakRealmRoleConverterTest {
                 .build();
 
         assertThat(converter.convert(jwt)).isEmpty();
+    }
+
+    @Test
+    void throwsNullPointerExceptionWhenJwtIsNull() {
+        org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class, () -> converter.convert(null));
     }
 
     private Jwt jwtWithRealmRoles(final List<String> roles) {
