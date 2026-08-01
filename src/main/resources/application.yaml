@@ -8,6 +8,7 @@ spring:
         jwt:
           # Keycloak realm issuer. Overridable via KEYCLOAK_ISSUER_URI.
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/rintellix}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8180/realms/rintellix/protocol/openid-connect/certs}
 
   cloud:
     gateway:

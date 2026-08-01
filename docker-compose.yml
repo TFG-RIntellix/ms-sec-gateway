@@ -18,6 +18,7 @@ services:
       - "8180:8180"
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro
+      - ./keycloak/themes:/opt/keycloak/themes:ro
     healthcheck:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8180 && echo -e 'GET /realms/rintellix HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
       interval: 15s
