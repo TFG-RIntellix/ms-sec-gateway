@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: ms-sec-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak realm issuer. Overridable via KEYCLOAK_ISSUER_URI.
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/rintellix}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://keycloak:8180/realms/rintellix/protocol/openid-connect/certs}
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            # ---- ms-core-data (MongoDB-backed REST) ----
+            - id: core-data-simulations
+              uri: ${MS_CORE_DATA_URI:http://localhost:8081}
+              predicates:
+                - Path=/api/simulations/**
+            - id: core-data-requests
+              uri: ${MS_CORE_DATA_URI:http://localhost:8081}
+              predicates:
+                - Path=/api/requests/**
+            - id: core-data-reports
+              uri: ${MS_CORE_DATA_URI:http://localhost:8081}
+              predicates:
+                - Path=/api/reports/**
+
+            # ---- ms-risk-engine (simulation draft) ----
+            - id: risk-engine-simulations
+              uri: ${MS_RISK_ENGINE_URI:http://localhost:8082}
+              predicates:
+                - Path=/api/v1/simulations/**
+
+server:
+  port: ${GATEWAY_PORT:8085}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# Attack-mitigation tuning (see GatewaySecurityProperties for all options).
+gateway:
+  security:
+    cors:
+      allowed-origins:
+        - http://localhost:4200
+        - http://localhost:3000
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - Authorization
+        - Content-Type
+        - X-Request-ID
+      allow-credentials: true
+      max-age-seconds: 3600
+    limits:
+      max-body-bytes: 1048576
+      max-url-length: 4096
+      max-header-count: 64
+    injection:
+      enabled: true
+      max-json-depth: 32
+    rate-limit:
+      enabled: true
+      requests-per-minute: 120
+      burst-capacity: 40
+    stripped-headers:
+      - X-User-Role
+      - X-User-Id
+      - X-User-Name
+      - X-Authenticated-User
+      - X-Roles
+      - X-Auth-Roles
+      - X-Forwarded-User
+
+logging:
+  level:
+    es.NTTEnterprise.RIntellix.ms_sec_gateway: INFO
