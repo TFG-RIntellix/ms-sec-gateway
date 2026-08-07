@@ -49,3 +49,7 @@ HELP.md
 # Spanish readme / internal docs (kept local, mirrors the other services)
 README_ES.md
 documentation
+
+# Keycloak themes and realms (contains sensitive information)
+keycloak/themes/
+keycloak/rintellix-realm.json

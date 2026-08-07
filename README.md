@@ -1,131 +1,106 @@
 # ms-sec-gateway
 
-Security gateway for the **RIntellix** platform — the single public entry point
-that sits in front of the microservices, authenticates callers against
-**Keycloak**, authorises only the **`ANALISTA`** role to execute REST methods,
-and filters out **MongoDB (NoSQL) injection** and other common web attacks
-before routing the surviving traffic downstream.
+**API gateway and security perimeter for the RIntellix credit-risk platform.**
 
-> Built for the TFG local setup: `ms-risk-engine`, `ms-core-data` and
-> `ms-reporting` run locally, `ms-model` runs in Docker, and Keycloak runs in
-> Docker. Everything is designed to move into a single Docker network later.
+`Java 17` · `Spring Cloud Gateway` · `Spring WebFlux` · `Keycloak / OAuth2`
 
-## Tech stack
+---
 
-- Java 17, Spring Boot **4.0.7**, Maven
-- Spring Cloud Gateway **2025.1.x** (reactive / WebFlux server)
-- Spring Security **OAuth2 Resource Server** (JWT validation against Keycloak)
+## 1. Overview
 
-## Responsibilities
+`ms-sec-gateway` is the single entry point for all external traffic into RIntellix. It is a
+reactive API gateway built on Spring Cloud Gateway that:
 
-| Concern | How |
-|---|---|
-| **Authentication** | Validates the Keycloak JWT (signature/issuer/expiry via the realm JWKS) on every request. Stateless bearer tokens. |
-| **Authorization** | Every routed REST method requires `hasRole('ANALISTA')`. Realm roles are read from the JWT `realm_access.roles` claim and mapped to `ROLE_*`. No/invalid token → `401`; authenticated but not `ANALISTA` → `403`. |
-| **NoSQL injection filter** | Scans query params, path and JSON body; rejects Mongo operator injection (`$where`, `$ne`, `$gt`, `$regex`, …), `$`-prefixed / dotted JSON keys, and embedded JS. |
-| **Input hardening** | Max body size, max URL length, header-count cap, path-traversal and reflected-XSS rejection. |
-| **Rate limiting** | In-memory token bucket, keyed by JWT subject (falls back to client IP). |
-| **Transport hardening** | Restricted CORS, security response headers (CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, HSTS), and stripping of spoofable inbound identity headers. |
+- Routes incoming requests to the appropriate downstream microservice
+  (`ms-core-data`, `ms-risk-engine`, …).
+- Validates OAuth2/JWT access tokens issued by **Keycloak** before a request is allowed through.
+- Centralises cross-cutting concerns (CORS, error format, request filtering) so downstream
+  services don't have to re-implement them.
 
-## Routes
+No business logic lives here — its only responsibility is *authenticate, route, protect*.
 
-| Path | Downstream |
-|---|---|
-| `/api/simulations/**`, `/api/requests/**` | `ms-core-data` (`:8081`) |
-| `/api/v1/simulations/**` | `ms-risk-engine` (`:8082`) |
+## 2. Key aspects of the system
 
-`ms-model` (`:8000`) is **internal** (called only by `ms-risk-engine`) and is
-deliberately not routed through the gateway.
+- **Reactive, non-blocking gateway.** Built with `spring-cloud-starter-gateway-server-webflux`
+  on Project Reactor, suited to proxy many concurrent downstream calls efficiently.
+- **OAuth2 resource-server validation.** `spring-boot-starter-oauth2-resource-server` validates
+  incoming bearer tokens against the Keycloak issuer configured in `KEYCLOAK_ISSUER_URI`.
+  Token/role logic lives in `security/`.
+- **Custom gateway filters.** `filters/` contains pre/post filters applied to routed requests
+  (e.g. propagating auth context, logging).
+- **Centralised reactive error handling.** `error/` implements a global handler so that gateway-
+  level failures (auth failures, routing errors, downstream timeouts) return a consistent error
+  payload instead of leaking framework-specific stack traces.
 
-## Ports
+### Repository structure
 
-| Component | Port |
-|---|---|
-| ms-sec-gateway | `8080` |
-| Keycloak | `8180` |
-| ms-core-data | `8081` |
-| ms-risk-engine | `8082` |
-| ms-model (Docker) | `8000` |
+The following schematic illustrates the source code layout and how the key architectural pieces described above map to the main project folders:
 
-## Getting started
+![Directory structure](./estructura_directorios_ms_sec_gateway.svg)
 
-### 1. Start Keycloak (Docker)
+## 3. Tech stack
 
-```bash
-cp .env.example .env          # optional: adjust admin creds / ports
-docker compose up -d keycloak
-```
+- **Language / runtime:** Java 17
+- **Framework:** Spring Cloud Gateway (reactive, WebFlux-based)
+- **Security:** Spring Security + OAuth2 Resource Server, Keycloak 26.4 as Identity Provider
+- **Utilities:** Lombok
 
-This imports the `rintellix` realm from `keycloak/rintellix-realm.json`:
-- realm role **`ANALISTA`**,
-- public client **`rintellix-frontend`** (Standard Flow + Direct Access Grants),
-- test users **`analista`** / `analista` (has `ANALISTA`) and **`viewer`** /
-  `viewer` (no role).
+## 4. Prerequisites
 
-Admin console: <http://localhost:8180> (default `admin` / `admin`).
+- JDK 17+
+- Maven 3.9+
+- Docker & Docker Compose (to run Keycloak locally)
+- The downstream services this gateway routes to (`ms-core-data`, `ms-risk-engine`) reachable
+  at the URLs configured below
 
-### 2. Run the gateway
+## 5. Getting started
+
+> `**IMPORTANT**`
+>
+> **Global platform deployment**:
+> This repository contains only the gateway code. To spin up the entire RIntellix platform (including this service, Keycloak, and the rest of the microservices), clone the main infrastructure repository **[TFG-RIntellix/rintellix-deployment]** and follow its instructions.
+
+The following commands are provided for local development, code review, and building:
 
 ```bash
-mvn spring-boot:run
+# 1. Clone the repository
+git clone https://github.com/TFG-RIntellix/ms-sec-gateway.git
+cd ms-sec-gateway
+
+# 2. Prepare your environment file
+cp .env.example .env
+# edit .env if you need different ports/credentials
+
+# 3. Build the project
+mvn clean package -DskipTests
 ```
 
-> Keycloak must be reachable at startup — the gateway resolves the realm's JWKS
-> from `KEYCLOAK_ISSUER_URI` (default `http://localhost:8180/realms/rintellix`).
+The gateway listens on **port 8080** by default, configured via `GATEWAY_PORT`.
 
-### 3. Get a token and call through the gateway
+## 6. Configuration
 
-```bash
-# Obtain an access token for the analyst user (password grant)
-TOKEN=$(curl -s \
-  -d "client_id=rintellix-frontend" \
-  -d "grant_type=password" \
-  -d "username=analista" -d "password=analista" \
-  http://localhost:8180/realms/rintellix/protocol/openid-connect/token \
-  | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+Environment variables (see `.env.example`):
 
-# Authorised call (ANALISTA) → forwarded to ms-core-data
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/requests
-
-# No token → 401 ; token for `viewer` → 403
-curl -i http://localhost:8080/api/requests
-
-# Blocked NoSQL injection → 400
-curl -i -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -X POST -d '{"partyName": {"$ne": null}}' \
-  http://localhost:8080/api/simulations
-```
-
-## Configuration
-
-All values have safe defaults. Common overrides (env var → property):
-
-| Env var | Property | Default |
+| Variable | Description | Default |
 |---|---|---|
-| `GATEWAY_PORT` | `server.port` | `8080` |
-| `KEYCLOAK_ISSUER_URI` | `spring.security.oauth2.resourceserver.jwt.issuer-uri` | `http://localhost:8180/realms/rintellix` |
-| `MS_CORE_DATA_URI` | route uri | `http://localhost:8081` |
-| `MS_RISK_ENGINE_URI` | route uri | `http://localhost:8082` |
+| `KEYCLOAK_ADMIN` | Keycloak admin console username (local dev only) | `admin` |
+| `KEYCLOAK_ADMIN_PASSWORD` | Keycloak admin console password (local dev only) | `admin` |
+| `GATEWAY_PORT` | Port the gateway listens on | `8080` |
+| `KEYCLOAK_ISSUER_URI` | OAuth2 issuer URI used to validate tokens | `http://localhost:8180/realms/rintellix` |
+| `MS_CORE_DATA_URI` | Base URL of `ms-core-data` | `http://localhost:8081` |
+| `MS_RISK_ENGINE_URI` | Base URL of `ms-risk-engine` | `http://localhost:8082` |
 
-Attack-filter tuning lives under the `gateway.security.*` prefix (see
-`application.yaml` / `GatewaySecurityProperties`): `cors`, `limits`,
-`injection`, `rate-limit`, `stripped-headers`.
+> `application.yaml*` / `application.properties*` are gitignored — route definitions and
+> resource-server settings should reference the variables above.
 
-## Build & test
+## 7. Related services
 
-```bash
-mvn clean test      # unit tests (attack detector + role converter)
-mvn clean package   # build the executable jar
-```
+- **ms-core-data**, **ms-risk-engine** — downstream services this gateway routes to.
+- **Keycloak** — identity provider for OAuth2 token validation.
 
-## Notes / future work
+## 8. Author
 
-- **Gateway bypass:** the backends currently have no auth and listen on
-  localhost, so they can be reached directly. For the future all-Docker setup,
-  publish only the gateway's port and keep backends on an internal network.
-  Adding JWT validation on each backend would be additional defence-in-depth.
-- `ms-reporting` exposes no REST endpoints today (Kafka-driven); routes will be
-  added here when it does.
-- Rate limiting is per-instance in-memory; switch to a Redis-backed
-  `RequestRateLimiter` when running multiple gateway instances.
-- TLS/HSTS is meaningful only once the gateway is served over HTTPS.
+Lucía Fernández Mancebo — TFG *RIntellix*, Universidad de Cantabria.
+
+
+

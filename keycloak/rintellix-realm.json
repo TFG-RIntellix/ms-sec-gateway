@@ -1,5 +1,6 @@
 {
   "realm": "rintellix",
+  "loginTheme": "rintellix-login",
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": false,
