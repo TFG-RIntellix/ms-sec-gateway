@@ -26,11 +26,13 @@
       "serviceAccountsEnabled": false,
       "redirectUris": [
         "http://localhost:4200/*",
-        "http://localhost:3000/*"
+        "http://localhost:3000/*",
+        "http://localhost:8085/*"
       ],
       "webOrigins": [
         "http://localhost:4200",
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost:8085"
       ],
       "protocol": "openid-connect",
       "attributes": {
