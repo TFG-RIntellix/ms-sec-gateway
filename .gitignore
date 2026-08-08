@@ -53,3 +53,4 @@ documentation
 # Keycloak themes and realms (contains sensitive information)
 keycloak/themes/
 keycloak/rintellix-realm.json
+
