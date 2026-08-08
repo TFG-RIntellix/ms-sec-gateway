@@ -2,19 +2,6 @@ spring:
   application:
     name: ms-sec-gateway
 
-  springdoc:
-    api-docs:
-      enabled: false
-    swagger-ui:
-      urls:
-        - name: Core Data API
-          url: /core-data-openapi/v3/api-docs
-        - name: Risk Engine API
-          url: /risk-engine-openapi/v3/api-docs
-      oauth:
-        # Cliente específico para la UI de Swagger (sin PKCE para evitar fallos de cache)
-        clientId: rintellix-swagger
-
   security:
     oauth2:
       resourceserver:
@@ -118,3 +105,16 @@ gateway:
 logging:
   level:
     es.NTTEnterprise.RIntellix.ms_sec_gateway: INFO
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Core Data API
+        url: /core-data-openapi/v3/api-docs
+      - name: Risk Engine API
+        url: /risk-engine-openapi/v3/api-docs
+    oauth:
+      clientId: rintellix-swagger
