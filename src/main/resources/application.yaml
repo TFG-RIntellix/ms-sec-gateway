@@ -2,6 +2,14 @@ spring:
   application:
     name: ms-sec-gateway
 
+  springdoc:
+    swagger-ui:
+      urls:
+        - name: Core Data API
+          url: /core-data-openapi/v3/api-docs
+        - name: Risk Engine API
+          url: /risk-engine-openapi/v3/api-docs
+
   security:
     oauth2:
       resourceserver:
@@ -34,6 +42,20 @@ spring:
               uri: ${MS_RISK_ENGINE_URI:http://localhost:8082}
               predicates:
                 - Path=/api/v1/simulations/**
+
+            # ---- OpenAPI Docs Routes ----
+            - id: core-data-openapi
+              uri: ${MS_CORE_DATA_URI:http://localhost:8081}
+              predicates:
+                - Path=/core-data-openapi/**
+              filters:
+                - RewritePath=/core-data-openapi/(?<segment>.*), /$\{segment}
+            - id: risk-engine-openapi
+              uri: ${MS_RISK_ENGINE_URI:http://localhost:8082}
+              predicates:
+                - Path=/risk-engine-openapi/**
+              filters:
+                - RewritePath=/risk-engine-openapi/(?<segment>.*), /$\{segment}
 
 server:
   port: ${GATEWAY_PORT:8085}
