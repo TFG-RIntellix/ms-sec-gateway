@@ -77,7 +77,7 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.NO_REFERRER))
                         .hsts(hsts -> hsts.includeSubdomains(true).maxAge(Duration.ofDays(365)))
                         .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'none'; frame-ancestors 'none'")));
+                                .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:8180; frame-ancestors 'none'")));
 
         return http.build();
     }
