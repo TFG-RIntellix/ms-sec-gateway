@@ -51,9 +51,9 @@ spring:
             - id: model-openapi
               uri: ${MS_MODEL_URI:http://ms-model:8000}
               predicates:
-                - Path=/model-openapi/**
+                - Path=/model-openapi/v3/api-docs
               filters:
-                - RewritePath=/model-openapi/(?<segment>.*), /$\{segment}
+                - RewritePath=/model-openapi/v3/api-docs, /openapi.json
 
 server:
   port: ${GATEWAY_PORT:8085}
@@ -124,6 +124,6 @@ springdoc:
       - name: Risk Engine API
         url: /risk-engine-openapi/v3/api-docs
       - name: Machine Learning Model API
-        url: /model-openapi/openapi.json
+        url: /model-openapi/v3/api-docs
     oauth:
       clientId: rintellix-swagger
