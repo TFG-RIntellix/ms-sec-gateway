@@ -108,8 +108,9 @@ logging:
 
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
   swagger-ui:
+    disable-swagger-default-url: true
     path: /swagger-ui.html
     urls:
       - name: Core Data API
